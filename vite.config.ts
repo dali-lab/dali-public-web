@@ -1,41 +1,25 @@
-import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
-import esbuild from "esbuild";
-declare module "@remix-run/node" {
-  interface Future {
-    v3_singleFetch: true;
-  }
-}
+import react from '@vitejs/plugin-react'
+import path from 'path'
 
 export default defineConfig({
-  plugins: [
-    remix({
-      future: {
-        v3_fetcherPersist: true,
-        v3_relativeSplatPath: true,
-        v3_throwAbortReason: true,
-        v3_singleFetch: true,
-        v3_lazyRouteDiscovery: true,
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  server: {
+    proxy: {
+      '/api/notion': {
+        target: 'https://api.notion.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/notion/, ''),
+        headers: {
+          'Notion-Version': '2022-02-22',
+        },
       },
-      serverBuildFile: 'remix.js',
-      buildEnd: async () => {
-        await esbuild.build({
-          alias: {"~": "./app"},
-          outfile: "build/server/index.js",
-          entryPoints: ["server/index.ts"],
-          external: ["./build/server/*"],
-          platform: "node",
-          format: "esm",
-          packages: "external",
-          bundle: true,
-          logLevel: "info",
-      }).catch((error: unknown) => {
-        console.error("Failed to build server", error);
-        process.exit(1);
-      });
-      }
-    }),
-    tsconfigPaths(),
-  ],
+    },
+  },
 });

@@ -33,18 +33,18 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
     throw new Error('Notion API key is not configured');
   }
 
+  const url = `https://api.notion.com/v1/${endpoint}`;
   console.log('Making Notion API request:', {
-    endpoint,
+    url,
     method,
     hasBody: !!body,
     hasApiKey: !!notionApiKey,
     body: body,
-    url: `https://api.notion.com/v1/${endpoint}`,
     env: process.env.NODE_ENV
   });
 
   try {
-    const response = await fetch(`https://api.notion.com/v1/${endpoint}`, {
+    const response = await fetch(url, {
       method,
       headers: {
         'Authorization': `Bearer ${notionApiKey}`,
@@ -71,6 +71,10 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
         env: process.env.NODE_ENV
       });
       throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${responseText}`);
+    }
+
+    if (!responseText) {
+      throw new Error('Empty response from Notion API');
     }
 
     try {

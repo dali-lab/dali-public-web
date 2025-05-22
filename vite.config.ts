@@ -2,7 +2,8 @@ import { defineConfig } from "vite";
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-export default defineConfig({
+// https://vitejs.dev/config/
+export default defineConfig(({ command }) => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -15,7 +16,7 @@ export default defineConfig({
     assetsDir: 'assets',
     emptyOutDir: true,
   },
-  server: {
+  server: command === 'serve' ? {
     proxy: {
       '/api/notion': {
         target: 'https://api.notion.com',
@@ -26,8 +27,8 @@ export default defineConfig({
         },
       },
     },
-  },
+  } : undefined,
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+    'process.env.NODE_ENV': JSON.stringify(command === 'serve' ? 'development' : 'production')
   }
-});
+}));

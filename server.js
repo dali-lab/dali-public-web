@@ -17,11 +17,17 @@ const port = process.env.PORT || 3000;
 // Log all requests
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Request headers:', req.headers);
   next();
 });
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Notion-Version']
+}));
+
 app.use(express.json());
 
 // Helper function to make Notion API requests
@@ -103,9 +109,11 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
       env: process.env.NODE_ENV
     });
 
+    // Ensure we have a valid request body
     const requestBody = req.body || {};
     console.log('Request body:', requestBody);
 
+    // Make the request to Notion
     const data = await makeNotionRequest(`databases/${databaseId}/query`, 'POST', requestBody);
     console.log('Notion API response:', data);
     
@@ -113,6 +121,8 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
       throw new Error('No data received from Notion API');
     }
 
+    // Send the response
+    res.setHeader('Content-Type', 'application/json');
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);

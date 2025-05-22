@@ -11,6 +11,12 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 // Enable CORS for all routes
 app.use(cors());
 app.use(express.json());
@@ -29,7 +35,8 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
     method,
     hasBody: !!body,
     hasApiKey: !!notionApiKey,
-    body: body
+    body: body,
+    url: `https://api.notion.com/v1/${endpoint}`
   });
 
   try {
@@ -44,7 +51,12 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
     });
 
     const responseText = await response.text();
-    console.log('Raw Notion API response:', responseText);
+    console.log('Raw Notion API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+      body: responseText
+    });
 
     if (!response.ok) {
       console.error('Notion API error:', {
@@ -75,7 +87,9 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
       databaseId,
       body: req.body,
       hasApiKey: !!process.env.VITE_NOTION_API_KEY,
-      headers: req.headers
+      headers: req.headers,
+      url: req.url,
+      method: req.method
     });
 
     const requestBody = req.body || {};
@@ -142,11 +156,24 @@ app.use(express.static('dist'));
 
 // Handle client-side routing - this must come AFTER static file serving
 app.get('*', (req, res) => {
+  console.log('Serving index.html for route:', req.url);
   res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
   console.log('Environment:', process.env.NODE_ENV);
   console.log('Notion API Key available:', !!process.env.VITE_NOTION_API_KEY);
+  console.log('Current working directory:', process.cwd());
+  console.log('Dist directory exists:', require('fs').existsSync(path.join(process.cwd(), 'dist')));
 }); 

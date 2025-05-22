@@ -22,4 +22,16 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    proxy: {
+      '/api/notion': {
+        target: 'https://api.notion.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/notion/, ''),
+        headers: {
+          'Notion-Version': '2022-02-22',
+        },
+      },
+    },
+  },
 });

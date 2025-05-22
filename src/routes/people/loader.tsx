@@ -2,6 +2,7 @@ import type { PersonProps } from "@/lib/types"
 import timImage from "@/assets/tim.jpg"
 import madisonImage from "@/assets/madison.jpeg"
 import papeImage from "@/assets/pape.jpeg"
+import loebImage from "@/assets/lorie.png"
 import { QueryClient } from '@tanstack/react-query'
 
 const NOTION_API_KEY = import.meta.env.VITE_NOTION_API_KEY;
@@ -82,6 +83,16 @@ const fetchPeople = async () => {
             year: "",
             terms: [],
             image: papeImage,
+            isStaff: true,
+            isCore: false,
+        },
+        {
+            id: "4",
+            name: "Lorie Loeb",
+            roles: ["Faculty Advisor"],
+            year: "",
+            terms: [],
+            image: loebImage,
             isStaff: true,
             isCore: false,
         }

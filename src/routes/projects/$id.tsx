@@ -33,7 +33,8 @@ const fetchProject = async (id: string) => {
 
     const blocksData = await blocksRes.json();
     
-    // Get all paragraph blocks and join their text
+    // get all paragraph blocks and join their text
+    // TODO: parsing inconsistent, need to fix
     const description = blocksData.results
         .filter((block: any) => block.type === 'paragraph' && block.paragraph?.rich_text?.length > 0)
         .map((block: any) => block.paragraph.rich_text[0].plain_text)

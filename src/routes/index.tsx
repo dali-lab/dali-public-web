@@ -31,16 +31,16 @@ export default function About() {
                 <p>Students are employed to work in teams to develop, design, and create solutions for community and global partners. Lab members apply their classroom learning to real-world, industry-standard projects in a community of like-minded individuals.</p>
             </div>
             <img src={daliNumber} alt="DALI Number" className="w-full" />
-            <div className="p-8">
-                <p className="text-2xl font-bold mb-4">Our Mission</p>
-                <p><span>We step up: </span>Meet challenges, pursue learning opportunities, choose to take initiative in big and small ways.</p>
-                <p><span>We are tenacious: </span>Commit to bring our best effort despite setbacks, and persevere through the bugs, the crits, and the occasional lack of snacks.</p>
-                <p><span>We believe that difference is a strength: </span>Challenge biased norms and be inclusive of a variety of people, perspectives, ideas, approaches, and projects.</p>
-                <p><span>We adapt: </span>There’s no recipe - be ready and willing to change course and iterate.</p>
-                <p><span>We create thoughtfully: </span>Investigate the value and consequences of what, how, and why we make. Set a high bar, technically and ethically.</p>
-                <p><span>We invest in each other: </span>Be generous with your time, knowledge, and emotional support. Learn from your teammates and give back through mentorship.</p>
-                <p><span>We risk being genuine and vulnerable: </span>Admit weakness, ask questions, be open when asking for and giving help, trust others and yourself.</p>
-                <p><span>Code, laugh, love: </span>Don’t take life too seriously.</p>
+            <div className="py-12 px-[10%] bg-dali-background">
+                <p className="text-2xl font-bold mb-4 mt-10">Our Mission</p>
+                <p className="mb-5"><span className="font-bold text-lg">1. We step up: </span>Meet challenges, pursue learning opportunities, choose to take initiative in big and small ways.</p>
+                <p className="mb-5"><span className="font-bold text-lg">2. We are tenacious: </span>Commit to bring our best effort despite setbacks, and persevere through the bugs, the crits, and the occasional lack of snacks.</p>
+                <p className="mb-5"><span className="font-bold text-lg">3. We believe that difference is a strength: </span>Challenge biased norms and be inclusive of a variety of people, perspectives, ideas, approaches, and projects.</p>
+                <p className="mb-5"><span className="font-bold text-lg">4. We adapt: </span>There’s no recipe - be ready and willing to change course and iterate.</p>
+                <p className="mb-5"><span className="font-bold text-lg">5. We create thoughtfully: </span>Investigate the value and consequences of what, how, and why we make. Set a high bar, technically and ethically.</p>
+                <p className="mb-5"><span className="font-bold text-lg">6. We invest in each other: </span>Be generous with your time, knowledge, and emotional support. Learn from your teammates and give back through mentorship.</p>
+                <p className="mb-5"><span className="font-bold text-lg">7. We risk being genuine and vulnerable: </span>Admit weakness, ask questions, be open when asking for and giving help, trust others and yourself.</p>
+                <p className="mb-5"><span className="font-bold text-lg">8. Code, laugh, love: </span>Don’t take life too seriously.</p>
             </div>
             <div>
                 <p>Thank you to our sponsors</p>

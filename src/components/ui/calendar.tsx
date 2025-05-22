@@ -9,6 +9,7 @@ import { Workshop } from "@/lib/types"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   workshops?: Workshop[]
+  setSelectedWorkshop: (workshop: Workshop) => void
 }
 
 function Calendar({
@@ -16,6 +17,7 @@ function Calendar({
   classNames,
   showOutsideDays = true,
   workshops = [],
+  setSelectedWorkshop,
   ...props
 }: CalendarProps) {
   const getWorkshopsForDate = (date: Date) => {
@@ -80,16 +82,16 @@ function Calendar({
         DayContent: ({ date, displayMonth, activeModifiers }: DayContentProps) => {
           const dayWorkshops = getWorkshopsForDate(date)
           return (
-            <div className="w-full h-full flex flex-col items-center hover:cursor-pointer px-1">
-              <span className="text-sm font-medium mb-1">{date.getDate()}</span>
-              <div className="flex-1 w-full overflow-y-auto">
+            <div className="w-full h-full flex flex-col items-center hover:cursor-pointer px-1 py-2 border border-transparent hover:border-accent rounded-md transition-colors">
+              <span className="text-sm font-medium mb-2">{date.getDate()}</span>
+              <div className="flex-1 w-full overflow-y-auto space-y-1">
                 {dayWorkshops.map((workshop, index) => (
-                  <div 
+                  <button 
                     key={index}
-                    className="text-xs p-1 mb-1 bg-dali-pink/50 rounded text-primary truncate"
-                  >
-                    <p>{workshop.title}</p>
-                  </div>
+                    className="w-full text-xs px-1.5 py-0.5 bg-dali-pink/20 hover:bg-dali-pink/30 rounded-md text-primary transition-colors duration-200"
+                    onClick={() => setSelectedWorkshop(workshop)}>
+                    <p className="truncate">{workshop.title}</p>
+                  </button>
                 ))}
               </div>
             </div>

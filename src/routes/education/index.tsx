@@ -39,8 +39,10 @@ const fetchWorkshops = async () => {
                 'Authorization': `Bearer ${NOTION_API_KEY}`,
                 'Content-Type': 'application/json',
                 'Notion-Version': '2022-02-22',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify({})
+            body: JSON.stringify({}),
+            credentials: 'omit'
         });
 
         console.log('Response status:', response.status);
@@ -60,10 +62,44 @@ const fetchWorkshops = async () => {
         const responseText = await response.text();
         console.log('Raw response text:', responseText);
 
+        if (!responseText) {
+            throw new Error('Empty response from server');
+        }
+
         try {
             const data = JSON.parse(responseText);
             console.log('Parsed Notion API response:', data);
-            return { workshops: data.results || [] };
+            
+            if (!data.results) {
+                throw new Error('Invalid response format: missing results array');
+            }
+
+            const workshops = data.results.map((result: any) => {
+                // timezone conversion from UTC to EST
+                const dateStr = result.properties.Date.date?.start;
+                let date = new Date();
+                
+                if (dateStr) {
+                    date = new Date(dateStr);
+                    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+                }
+
+                if (!result.properties.Name.title[0]?.plain_text) {
+                    return null;
+                }
+
+                return {
+                    id: result.id,
+                    title: result.properties.Name.title[0]?.plain_text || 'Untitled Workshop',
+                    date: date.toISOString(),
+                    location: result.properties.Location?.rich_text[0]?.plain_text || 'TBD',
+                    url: result.url,
+                    domain: result.properties.Domain?.multi_select?.map((domain: any) => domain.name) || [],
+                    term: result.properties.Term?.multi_select?.map((term: any) => term.name) || [],
+                };
+            }).filter((workshop: Workshop) => workshop !== null);
+
+            return { workshops };
         } catch (parseError) {
             console.error('Error parsing response:', parseError);
             throw new Error('Invalid JSON response from server');

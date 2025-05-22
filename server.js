@@ -8,6 +8,9 @@ import { fileURLToPath } from 'url';
 // Load environment variables
 dotenv.config();
 
+// Set NODE_ENV if not set
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -36,7 +39,8 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
     hasBody: !!body,
     hasApiKey: !!notionApiKey,
     body: body,
-    url: `https://api.notion.com/v1/${endpoint}`
+    url: `https://api.notion.com/v1/${endpoint}`,
+    env: process.env.NODE_ENV
   });
 
   try {
@@ -55,14 +59,16 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
       status: response.status,
       statusText: response.statusText,
       headers: response.headers,
-      body: responseText
+      body: responseText,
+      env: process.env.NODE_ENV
     });
 
     if (!response.ok) {
       console.error('Notion API error:', {
         status: response.status,
         statusText: response.statusText,
-        responseText
+        responseText,
+        env: process.env.NODE_ENV
       });
       throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
@@ -89,7 +95,8 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
       hasApiKey: !!process.env.VITE_NOTION_API_KEY,
       headers: req.headers,
       url: req.url,
-      method: req.method
+      method: req.method,
+      env: process.env.NODE_ENV
     });
 
     const requestBody = req.body || {};
@@ -108,7 +115,8 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
     res.status(500).json({ 
       error: 'Failed to fetch from Notion API',
       details: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV
     });
   }
 });
@@ -166,7 +174,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({
     error: 'Internal server error',
     message: err.message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV
   });
 });
 

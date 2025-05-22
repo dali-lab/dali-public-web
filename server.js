@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -198,5 +199,5 @@ app.listen(port, () => {
   console.log('Environment:', process.env.NODE_ENV);
   console.log('Notion API Key available:', !!process.env.VITE_NOTION_API_KEY);
   console.log('Current working directory:', process.cwd());
-  console.log('Dist directory exists:', require('fs').existsSync(path.join(process.cwd(), 'dist')));
+  console.log('Dist directory exists:', existsSync(path.join(process.cwd(), 'dist')));
 }); 

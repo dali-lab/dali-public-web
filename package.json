@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "rm -rf dist && npm install && vite build",
-    "start": "vite preview",
+    "start": "node server.js",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -26,9 +26,12 @@
     "autoprefixer": "^10.4.17",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
+    "express": "^4.18.2",
     "framer-motion": "^12.10.0",
     "lucide-react": "^0.323.0",
+    "node-fetch": "^3.3.2",
     "postcss": "^8.4.35",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.1",

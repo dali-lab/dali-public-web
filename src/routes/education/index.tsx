@@ -26,6 +26,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://api.notion.com';
 
 const fetchWorkshops = async () => {
     try {
+        console.log('Fetching workshops with:', {
+            apiUrl: API_URL,
+            databaseId: DATABASE_ID,
+            hasApiKey: !!NOTION_API_KEY
+        });
+
         const response = await fetch(`${API_URL}/v1/databases/${DATABASE_ID}/query`, {
             method: 'POST',
             headers: {
@@ -34,11 +40,19 @@ const fetchWorkshops = async () => {
                 'Notion-Version': '2022-02-22',
             },
         });
+
         if (!response.ok) {
-            throw new Error(`Notion API error: ${response.status} ${response.statusText}`);
+            const errorText = await response.text();
+            console.error('Notion API error response:', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${errorText}`);
         }
+
         const data = await response.json();
-        console.log(data.results)
+        console.log('Notion API response:', data);
 
         const workshops = data.results.map((result: any) => {
             // timezone conversion from UTC to EST
@@ -53,8 +67,6 @@ const fetchWorkshops = async () => {
             if (!result.properties.Name.title[0]?.plain_text) {
                 return null;
             }
-
-            console.log(result.properties);
 
             return {
                 id: result.id,

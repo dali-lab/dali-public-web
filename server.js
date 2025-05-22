@@ -26,7 +26,8 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
     endpoint,
     method,
     hasBody: !!body,
-    hasApiKey: !!notionApiKey
+    hasApiKey: !!notionApiKey,
+    body: body
   });
 
   try {
@@ -40,17 +41,24 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
       ...(body && { body: JSON.stringify(body) }),
     });
 
+    const responseText = await response.text();
+    console.log('Raw Notion API response:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
       console.error('Notion API error:', {
         status: response.status,
         statusText: response.statusText,
-        error: errorText
+        responseText
       });
-      throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
-    return response.json();
+    try {
+      return JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Error parsing Notion API response:', parseError);
+      throw new Error('Invalid JSON response from Notion API');
+    }
   } catch (error) {
     console.error('Error in makeNotionRequest:', error);
     throw error;
@@ -64,16 +72,29 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
     console.log('Received database query request:', {
       databaseId,
       body: req.body,
-      hasApiKey: !!process.env.VITE_NOTION_API_KEY
+      hasApiKey: !!process.env.VITE_NOTION_API_KEY,
+      headers: req.headers
     });
 
-    const data = await makeNotionRequest(`databases/${databaseId}/query`, 'POST', req.body);
+    // Ensure we have a valid request body
+    const requestBody = req.body || {};
+    console.log('Request body:', requestBody);
+
+    const data = await makeNotionRequest(`databases/${databaseId}/query`, 'POST', requestBody);
+    console.log('Notion API response:', data);
+    
+    if (!data) {
+      throw new Error('No data received from Notion API');
+    }
+
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);
+    // Ensure we always send a valid JSON response
     res.status(500).json({ 
       error: 'Failed to fetch from Notion API',
-      details: error.message 
+      details: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });

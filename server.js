@@ -11,6 +11,13 @@ app.use(express.static('dist'));
 
 // Helper function to make Notion API requests
 async function makeNotionRequest(endpoint, method = 'GET', body = null) {
+  console.log('Making Notion API request:', {
+    endpoint,
+    method,
+    hasBody: !!body,
+    hasApiKey: !!process.env.VITE_NOTION_API_KEY
+  });
+
   const response = await fetch(`https://api.notion.com/v1/${endpoint}`, {
     method,
     headers: {
@@ -23,6 +30,11 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
 
   if (!response.ok) {
     const errorText = await response.text();
+    console.error('Notion API error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorText
+    });
     throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
@@ -33,6 +45,12 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
 app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
   try {
     const { databaseId } = req.params;
+    console.log('Received database query request:', {
+      databaseId,
+      body: req.body,
+      hasApiKey: !!process.env.VITE_NOTION_API_KEY
+    });
+
     const data = await makeNotionRequest(`databases/${databaseId}/query`, 'POST', req.body);
     res.json(data);
   } catch (error) {
@@ -45,6 +63,11 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
 app.get('/api/notion/v1/pages/:pageId', async (req, res) => {
   try {
     const { pageId } = req.params;
+    console.log('Received page request:', {
+      pageId,
+      hasApiKey: !!process.env.VITE_NOTION_API_KEY
+    });
+
     const data = await makeNotionRequest(`pages/${pageId}`);
     res.json(data);
   } catch (error) {
@@ -57,6 +80,11 @@ app.get('/api/notion/v1/pages/:pageId', async (req, res) => {
 app.get('/api/notion/v1/blocks/:blockId/children', async (req, res) => {
   try {
     const { blockId } = req.params;
+    console.log('Received block children request:', {
+      blockId,
+      hasApiKey: !!process.env.VITE_NOTION_API_KEY
+    });
+
     const data = await makeNotionRequest(`blocks/${blockId}/children`);
     res.json(data);
   } catch (error) {

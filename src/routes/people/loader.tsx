@@ -16,6 +16,7 @@ const fetchPeople = async () => {
             'Content-Type': 'application/json',
             'Notion-Version': '2022-02-22',
         },
+        body: JSON.stringify({})
     });
 
     if (!response.ok) {

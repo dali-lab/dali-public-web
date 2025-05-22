@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf dist && npm install && npm install -g vite && vite build",
+    "build": "rm -rf dist && npm install && vite build",
     "start": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -32,7 +32,9 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.0",
     "tailwind-merge": "^2.2.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^6.3.5",
+    "@vitejs/plugin-react": "^4.4.1"
   },
   "devDependencies": {
     "@types/node": "^20.17.50",
@@ -40,14 +42,12 @@
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.2.2",
-    "vite": "^6.3.5"
+    "typescript": "^5.2.2"
   }
 }

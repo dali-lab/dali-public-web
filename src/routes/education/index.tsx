@@ -22,7 +22,7 @@ type WorkshopData = {
 
 const NOTION_API_KEY = import.meta.env.VITE_NOTION_API_KEY;
 const DATABASE_ID = import.meta.env.VITE_NOTION_EDUCATION_DATABASE_ID;
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.notion.com';
+const API_URL = '/api/notion';  // Simplified to use the proxy endpoint
 
 const fetchWorkshops = async () => {
     try {

@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,34 +15,46 @@ app.use(express.static('dist'));
 
 // Helper function to make Notion API requests
 async function makeNotionRequest(endpoint, method = 'GET', body = null) {
+  const notionApiKey = process.env.VITE_NOTION_API_KEY;
+  
+  if (!notionApiKey) {
+    console.error('Notion API key is missing');
+    throw new Error('Notion API key is not configured');
+  }
+
   console.log('Making Notion API request:', {
     endpoint,
     method,
     hasBody: !!body,
-    hasApiKey: !!process.env.VITE_NOTION_API_KEY
+    hasApiKey: !!notionApiKey
   });
 
-  const response = await fetch(`https://api.notion.com/v1/${endpoint}`, {
-    method,
-    headers: {
-      'Authorization': `Bearer ${process.env.VITE_NOTION_API_KEY}`,
-      'Content-Type': 'application/json',
-      'Notion-Version': '2022-02-22',
-    },
-    ...(body && { body: JSON.stringify(body) }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Notion API error:', {
-      status: response.status,
-      statusText: response.statusText,
-      error: errorText
+  try {
+    const response = await fetch(`https://api.notion.com/v1/${endpoint}`, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${notionApiKey}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-02-22',
+      },
+      ...(body && { body: JSON.stringify(body) }),
     });
-    throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${errorText}`);
-  }
 
-  return response.json();
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Notion API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText
+      });
+      throw new Error(`Notion API error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Error in makeNotionRequest:', error);
+    throw error;
+  }
 }
 
 // Proxy endpoint for Notion database queries
@@ -55,7 +71,10 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);
-    res.status(500).json({ error: 'Failed to fetch from Notion API' });
+    res.status(500).json({ 
+      error: 'Failed to fetch from Notion API',
+      details: error.message 
+    });
   }
 });
 

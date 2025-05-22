@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Load environment variables
 dotenv.config();
@@ -9,9 +11,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Enable CORS for all routes
 app.use(cors());
 app.use(express.json());
-app.use(express.static('dist'));
 
 // Helper function to make Notion API requests
 async function makeNotionRequest(endpoint, method = 'GET', body = null) {
@@ -65,7 +67,7 @@ async function makeNotionRequest(endpoint, method = 'GET', body = null) {
   }
 }
 
-// Proxy endpoint for Notion database queries
+// API Routes - these must come BEFORE the static file serving
 app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
   try {
     const { databaseId } = req.params;
@@ -76,7 +78,6 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
       headers: req.headers
     });
 
-    // Ensure we have a valid request body
     const requestBody = req.body || {};
     console.log('Request body:', requestBody);
 
@@ -90,7 +91,6 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);
-    // Ensure we always send a valid JSON response
     res.status(500).json({ 
       error: 'Failed to fetch from Notion API',
       details: error.message,
@@ -99,7 +99,6 @@ app.post('/api/notion/v1/databases/:databaseId/query', async (req, res) => {
   }
 });
 
-// Proxy endpoint for Notion page details
 app.get('/api/notion/v1/pages/:pageId', async (req, res) => {
   try {
     const { pageId } = req.params;
@@ -112,11 +111,13 @@ app.get('/api/notion/v1/pages/:pageId', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);
-    res.status(500).json({ error: 'Failed to fetch from Notion API' });
+    res.status(500).json({ 
+      error: 'Failed to fetch from Notion API',
+      details: error.message 
+    });
   }
 });
 
-// Proxy endpoint for Notion block children
 app.get('/api/notion/v1/blocks/:blockId/children', async (req, res) => {
   try {
     const { blockId } = req.params;
@@ -129,15 +130,23 @@ app.get('/api/notion/v1/blocks/:blockId/children', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Error proxying to Notion:', error);
-    res.status(500).json({ error: 'Failed to fetch from Notion API' });
+    res.status(500).json({ 
+      error: 'Failed to fetch from Notion API',
+      details: error.message 
+    });
   }
 });
 
-// Serve the static files for all other routes
+// Serve static files AFTER API routes
+app.use(express.static('dist'));
+
+// Handle client-side routing - this must come AFTER static file serving
 app.get('*', (req, res) => {
-  res.sendFile('index.html', { root: 'dist' });
+  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Notion API Key available:', !!process.env.VITE_NOTION_API_KEY);
 }); 

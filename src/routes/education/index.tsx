@@ -22,10 +22,11 @@ type WorkshopData = {
 
 const NOTION_API_KEY = import.meta.env.VITE_NOTION_API_KEY;
 const DATABASE_ID = import.meta.env.VITE_NOTION_EDUCATION_DATABASE_ID;
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.notion.com';
 
 const fetchWorkshops = async () => {
     try {
-        const response = await fetch(`/api/notion/v1/databases/${DATABASE_ID}/query`, {
+        const response = await fetch(`${API_URL}/v1/databases/${DATABASE_ID}/query`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${NOTION_API_KEY}`,
@@ -69,6 +70,7 @@ const fetchWorkshops = async () => {
         return { workshops };
     } catch (error) {
         console.error('Error fetching workshops:', error);
+        return { workshops: [] };
     }
 }
 
